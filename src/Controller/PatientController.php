@@ -52,9 +52,10 @@ final class PatientController extends AbstractController
         ]);
     }
         #[Route('/patient/post/{id}', name: 'app_view_post_patient')]
-        public function viewPost(int $id , PostRepository $postRepository){
+        public function viewPost(int $id , PostRepository $postRepository): Response
+        {
             $postRepository->find($id);
-            return $this->render('patient/');
+            return $this->render('patient/viewpost.html.twig');
         }
         #[Route('/patient/comment', name: 'app_comment_patient')]
         public function comment (){
