@@ -55,11 +55,11 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
 
         // Rediriger en fonction du rôle
         if (in_array('ROLE_ADMIN', $roles)) {
-            return new RedirectResponse($this->urlGenerator->generate('app_admin'));
+            return new RedirectResponse($this->urlGenerator->generate('app_home_admin'));
         } elseif (in_array('ROLE_MEDECIN', $roles)) {
-            return new RedirectResponse($this->urlGenerator->generate('app_medecin'));
+            return new RedirectResponse($this->urlGenerator->generate('app_home_medecin'));
         } elseif (in_array('ROLE_PATIENT', $roles)) {
-            return new RedirectResponse($this->urlGenerator->generate('app_patient'));
+            return new RedirectResponse($this->urlGenerator->generate('app_home_patient'));
         }
 
         // Redirection par défaut si aucun rôle spécifique n'est trouvé

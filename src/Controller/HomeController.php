@@ -15,13 +15,13 @@ final class HomeController extends AbstractController
         $user=$this->getUser();
         if($user){
             if ($user->getRole() === 'ROLE_MEDECIN') {
-                return $this->redirectToRoute('app_medecin');
+                return $this->redirectToRoute('app_home_medecin');
             }
             if ($user->getRole() === 'ROLE_PATIENT') {
-                return $this->redirectToRoute('app_patient');
+                return $this->redirectToRoute('app_home_patient');
             }
             if ($user->getRole() === 'ROLE_ADMIN') {
-                return $this->redirectToRoute('app_admin');
+                return $this->redirectToRoute('app_home_admin');
             }
         }
         return $this->redirectToRoute('app_login');
