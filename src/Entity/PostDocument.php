@@ -13,30 +13,42 @@ class PostDocument
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $filename = null;
+
     #[ORM\ManyToOne(inversedBy: 'documents')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Post $post = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $filename = null;
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $originalName = null;
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $url = null;
+    public function setFilename(string $filename): static
+    {
+        $this->filename = $filename;
+        return $this;
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getPost(): ?Post
+    {
+        return $this->post;
+    }
 
-    public function getPost(): ?Post { return $this->post; }
-    public function setPost(?Post $post): static { $this->post = $post; return $this; }
+    public function setPost(?Post $post): static
+    {
+        $this->post = $post;
+        return $this;
+    }
 
-    public function getFilename(): ?string { return $this->filename; }
-    public function setFilename(string $filename): static { $this->filename = $filename; return $this; }
-
-    public function getOriginalName(): ?string { return $this->originalName; }
-    public function setOriginalName(?string $originalName): static { $this->originalName = $originalName; return $this; }
-
-    public function getUrl(): ?string { return $this->url; }
-    public function setUrl(?string $url): static { $this->url = $url; return $this; }
+    public function getUrl(): string
+    {
+        return '/uploads/' . $this->filename;
+    }
 }

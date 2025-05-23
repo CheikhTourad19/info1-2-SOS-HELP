@@ -41,13 +41,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
-    #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author')]
+
+    #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author', orphanRemoval: true, cascade: ['remove'])]
     private Collection $posts;
 
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'author')]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'author', orphanRemoval: true, cascade: ['remove'])]
     private Collection $comments;
 
-    #[ORM\OneToMany(targetEntity: Reply::class, mappedBy: 'author')]
+    #[ORM\OneToMany(targetEntity: Reply::class, mappedBy: 'author', orphanRemoval: true, cascade: ['remove'])]
     private Collection $replies;
 
     public function __construct()
