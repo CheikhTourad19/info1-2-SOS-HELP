@@ -52,22 +52,14 @@
                         {% endfor %}
 
                         {% if post.comments|length > 2 %}
-                            <a href="#" class="text-indigo-600 text-sm font-medium hover:underline">
+                            <a href="{{ path('app_post_show', {'id': post.id}) }}" class="text-indigo-600 text-sm font-medium hover:underline">
                                 Voir les {{ post.comments|length - 2 }} autres commentaires...
                             </a>
                         {% endif %}
                     </div>
                 {% endif %}
 
-                <!-- Comment Form -->
-                <div class="p-3 border-t border-gray-100">
-                    <div class="flex space-x-2">
-                        <div class="h-8 w-8 rounded-full bg-gray-200 flex-shrink-0"></div>
 
-                        <input type="text" placeholder="Ajouter un commentaire..."
-                               class="flex-1 bg-gray-100 rounded-full px-4 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                    </div>
-                </div>
             </div>
         {% endfor %}
     </div>
