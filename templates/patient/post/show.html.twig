@@ -1,0 +1,126 @@
+{% extends 'patient/base.patient.html.twig' %}
+
+{% block content %}
+    <div class="max-w-2xl mx-auto px-4 py-8 space-y-6">
+        <!-- Post Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+            <!-- Post Header -->
+            <div class="p-4 flex items-center space-x-3">
+                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                    {{ post.author.firstname|first|upper }}
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900">{{ post.author.firstname }} {{ post.author.lastname }}</h3>
+                    <p class="text-xs text-gray-500">{{ post.createdAt|date('M d, Y · h:i A') }}</p>
+                </div>
+            </div>
+
+            <!-- Post Content -->
+            <div class="px-4 pb-3">
+                <h2 class="font-bold text-xl mb-2 text-gray-800">{{ post.title }}</h2>
+                <p class="text-gray-700 whitespace-pre-line">{{ post.content }}</p>
+            </div>
+
+            <!-- Post Stats -->
+            <div class="px-4 py-3 border-t border-gray-100 flex items-center text-sm text-gray-500 space-x-4">
+                <span>{{ post.comments|length }} commentaires</span>
+            </div>
+        </div>
+
+        <!-- Comment Form -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden p-4">
+            <h3 class="font-medium text-gray-800 mb-3">Ajouter un commentaire</h3>
+            {{ form_start(commentForm, {'attr': {'class': 'space-y-3'}}) }}
+            {{ form_widget(commentForm.content, {'attr': {
+                'class': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200',
+                'placeholder': 'Votre commentaire...',
+                'rows': 3
+            }}) }}
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                Publier
+            </button>
+            {{ form_end(commentForm) }}
+        </div>
+
+        <!-- Comments Section -->
+        <div class="space-y-4">
+            <h3 class="font-semibold text-lg text-gray-800">Commentaires</h3>
+
+            {% if post.comments|length > 0 %}
+                {% for comment in post.comments %}
+                    <div id="comment-{{ comment.id }}" class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+                        <!-- Main Comment -->
+                        <div class="flex space-x-3">
+                            <div class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 text-xs font-bold">
+                                {{ comment.author.firstname|first|upper }}
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <h4 class="font-medium text-gray-900">{{ comment.author.firstname }}</h4>
+                                    <span class="text-xs text-gray-500">{{ comment.createdAt|date('M d, Y · h:i A') }}</span>
+                                </div>
+                                <p class="mt-1 text-gray-700">{{ comment.content }}</p>
+
+                                <!-- Reply Toggle -->
+                                <button onclick="toggleReplyForm('reply-form-{{ comment.id }}')"
+                                        class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                                    Répondre
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Reply Form (Hidden by Default) -->
+                        <div id="reply-form-{{ comment.id }}" class="hidden mt-3 pl-11">
+                            {{ form_start(replyForms[comment.id], {
+                                'attr': {'class': 'space-y-3'},
+                                'action': path('app_reply_add', {'commentId': comment.id})
+                            }) }}
+                            {{ form_widget(replyForms[comment.id].content, {'attr': {
+                                'class': 'w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm',
+                                'placeholder': 'Votre réponse...',
+                                'rows': 2
+                            }}) }}
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-1.5 px-3 rounded-lg transition duration-200">
+                                Envoyer
+                            </button>
+                            {{ form_end(replyForms[comment.id]) }}
+                        </div>
+
+                        <!-- Replies Section -->
+                        {% if comment.replies|length > 0 %}
+                            <div class="mt-3 space-y-3 pl-11">
+                                {% for reply in comment.replies %}
+                                    <div class="bg-gray-50 rounded-lg p-3">
+                                        <div class="flex space-x-2">
+                                            <div class="h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 text-xs">
+                                                {{ reply.author.firstname|first|upper }}
+                                            </div>
+                                            <div class="flex-1">
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="text-xs font-medium text-gray-900">{{ reply.author.firstname }}</span>
+                                                    <span class="text-xs text-gray-500">{{ reply.createdAt|date('M d, Y · h:i A') }}</span>
+                                                </div>
+                                                <p class="mt-1 text-xs text-gray-700">{{ reply.content }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <p>Aucun commentaire pour le moment. Soyez le premier à commenter!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function toggleReplyForm(formId) {
+            const form = document.getElementById(formId);
+            form.classList.toggle('hidden');
+        }
+    </script>
+{% endblock %}
