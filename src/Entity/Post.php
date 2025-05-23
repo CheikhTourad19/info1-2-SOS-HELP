@@ -32,14 +32,20 @@ class Post
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
-
-
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', orphanRemoval: true)]
     private Collection $comments;
+
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostImage::class, orphanRemoval: true, cascade: ['persist'])]
+    private Collection $images;
+
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostDocument::class, orphanRemoval: true, cascade: ['persist'])]
+    private Collection $documents;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->images = new ArrayCollection();
+        $this->documents = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -104,10 +110,6 @@ class Post
         return $this;
     }
 
-
-
-
-
     /**
      * @return Collection<int, Comment>
      */
@@ -130,6 +132,60 @@ class Post
         if ($this->comments->removeElement($comment)) {
             if ($comment->getPost() === $this) {
                 $comment->setPost(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PostImage>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(PostImage $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setPost($this);
+        }
+        return $this;
+    }
+
+    public function removeImage(PostImage $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            if ($image->getPost() === $this) {
+                $image->setPost(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PostDocument>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    public function addDocument(PostDocument $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+            $document->setPost($this);
+        }
+        return $this;
+    }
+
+    public function removeDocument(PostDocument $document): static
+    {
+        if ($this->documents->removeElement($document)) {
+            if ($document->getPost() === $this) {
+                $document->setPost(null);
             }
         }
         return $this;
