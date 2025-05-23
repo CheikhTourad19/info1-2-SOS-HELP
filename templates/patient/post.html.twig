@@ -1,0 +1,46 @@
+{% extends 'patient/base.patient.html.twig' %}
+
+{% block content %}
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden p-6">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-800">Créer un nouveau post</h1>
+                <p class="text-gray-600 mt-1">Partagez vos pensées avec la communauté</p>
+            </div>
+
+            <!-- Form -->
+            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+            <!-- Title Field -->
+            <div>
+                {{ form_label(form.title, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                {{ form_widget(form.title, {'attr': {
+                    'class': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200',
+                    'placeholder': 'Titre de votre post'
+                }}) }}
+                {{ form_errors(form.title) }}
+            </div>
+
+            <!-- Content Field -->
+            <div>
+                {{ form_label(form.content, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                {{ form_widget(form.content, {'attr': {
+                    'class': 'w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 min-h-[150px]',
+                    'placeholder': 'Écrivez votre contenu ici...',
+                    'rows': 5
+                }}) }}
+                {{ form_errors(form.content) }}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2">
+                {{ form_widget(form.submit, {'attr': {
+                    'class': 'w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                }}) }}
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
