@@ -247,6 +247,12 @@ final class PatientController extends AbstractController
         ]);
     }
 
+    #[Route('/patient/chatbot', name: 'app_chatbot_patient')]
+public function chatbot(): Response
+    {
+        return $this->render('patient/chatbot.html.twig' );
+    }
+
 
 
 }
