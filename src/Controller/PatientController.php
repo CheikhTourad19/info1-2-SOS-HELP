@@ -89,7 +89,6 @@ final class PatientController extends AbstractController
 
                 // Handle image uploads
                 $images = $form->get('images')->getData();
-                $this->addFlash('info', 'Nombre d\'images à télécharger: ' . count($images));
 
                 foreach ($images as $image) {
                     try {
@@ -98,7 +97,6 @@ final class PatientController extends AbstractController
                             $safeFilename = $slugger->slug($originalFilename);
                             $filename = $safeFilename . '-' . uniqid() . '.' . $image->guessExtension();
 
-                            $this->addFlash('info', 'Traitement de l\'image: ' . $originalFilename);
 
                             // Déplacer le fichier vers le dossier uploads
                             $image->move($uploadDir, $filename);
@@ -118,7 +116,6 @@ final class PatientController extends AbstractController
 
                 // Handle PDF uploads
                 $documents = $form->get('documents')->getData();
-                $this->addFlash('info', 'Nombre de documents à télécharger: ' . count($documents));
 
                 foreach ($documents as $doc) {
                     try {
@@ -127,12 +124,10 @@ final class PatientController extends AbstractController
                             $safeFilename = $slugger->slug($originalFilename);
                             $filename = $safeFilename . '-' . uniqid() . '.' . $doc->guessExtension();
 
-                            $this->addFlash('info', 'Traitement du document: ' . $originalFilename);
 
                             // Déplacer le fichier vers le dossier uploads
                             $doc->move($uploadDir, $filename);
 
-                            $this->addFlash('success', 'Document téléchargé avec succès: ' . $filename);
                             $postDoc = new PostDocument();
                             $postDoc->setFilename($filename);
                             $postDoc->setPost($post);
