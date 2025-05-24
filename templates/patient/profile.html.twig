@@ -1,5 +1,76 @@
 {% extends 'patient/base.patient.html.twig' %}
 
-{% block content %}
 
+
+{% block content %}
+    <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">Modifier mon profil</h1>
+                        <p class="text-gray-500 mt-1">Mettez à jour vos informations personnelles</p>
+                    </div>
+                    <div class="h-16 w-16 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
+                        {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
+                    </div>
+                </div>
+
+                {{ form_start(registrationForm, {'attr': {'class': 'space-y-6'}}) }}
+                <div class="space-y-4">
+                    <div>
+                        {{ form_label(registrationForm.email, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(registrationForm.email, {'attr': {
+                            'class': 'mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-200',
+                            'placeholder': 'votre@email.com'
+                        }}) }}
+                        {{ form_errors(registrationForm.email) }}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            {{ form_label(registrationForm.firstName, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(registrationForm.firstName, {'attr': {
+                                'class': 'mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-200',
+                                'placeholder': 'Prénom'
+                            }}) }}
+                            {{ form_errors(registrationForm.firstName) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(registrationForm.lastName, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(registrationForm.lastName, {'attr': {
+                                'class': 'mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-200',
+                                'placeholder': 'Nom'
+                            }}) }}
+                            {{ form_errors(registrationForm.lastName) }}
+                        </div>
+                    </div>
+
+                    <div>
+                        {{ form_label(registrationForm.plainPassword, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(registrationForm.plainPassword, {'attr': {
+                            'class': 'mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-200',
+                            'placeholder': 'Laissez vide pour ne pas changer'
+                        }}) }}
+                        <p class="mt-2 text-sm text-gray-500">Minimum 8 caractères, lettres et chiffres</p>
+                        {{ form_errors(registrationForm.plainPassword) }}
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <a href="{{ path('app_home') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200">
+                        Annuler
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200">
+                        Enregistrer les modifications
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </button>
+                </div>
+                {{ form_end(registrationForm) }}
+            </div>
+        </div>
+    </div>
 {% endblock %}

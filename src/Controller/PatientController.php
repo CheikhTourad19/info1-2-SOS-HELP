@@ -7,14 +7,17 @@ use App\Entity\Post;
 use App\Entity\PostDocument;
 use App\Entity\PostImage;
 use App\Entity\Reply;
+use App\Entity\User;
 use App\Form\CommentTypeForm;
 use App\Form\PostTypeForm;
+use App\Form\RegistrationFormTypeForm;
 use App\Form\ReplyTypeForm;
 use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -31,9 +34,36 @@ final class PatientController extends AbstractController
         ]);
     }
     #[Route('/patient/profile', name: 'app_profile_patient')]
-    public function profil(): Response
+    public function profil(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
+        $user = $this->getUser();
+        $form = $this->createForm(RegistrationFormTypeForm::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Traiter le mot de passe uniquement s'il a été saisi
+            if ($form->get('plainPassword')->getData()) {
+                $user->setPassword(
+                    $userPasswordHasher->hashPassword(
+                        $user,
+                        $form->get('plainPassword')->getData()
+                    )
+                );
+            }
+
+            // Les autres champs sont automatiquement définis par le gestionnaire de formulaires
+            // Il n'est pas nécessaire de les définir manuellement comme vous le faisiez
+        
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre profil a été mis à jour avec succès !');
+
+            return $this->redirectToRoute('app_home');
+        }
+
         return $this->render('patient/profile.html.twig', [
+            'registrationForm' => $form,
         ]);
     }
     #[Route('/patient/post/new', name: 'app_post_patient')]
