@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\AddUserForm;
+use App\Form\UpdateUserTypeForm;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -34,14 +36,44 @@ final class AdminController extends AbstractController
         return $this->render('admin/users.html.twig', ['patients'=>$patients,
             'medecins'=>$medecins,]);
     }
-    #[Route('//admin/users/edit{id}', name: 'app_users_edit_admin')]
+    #[Route('/admin/users/edit/{id}', name: 'app_users_edit_admin')]
     public function editUser(
+        Request $request,
+        User $user,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $em,
+        $id
+    ): Response {
+        $user=$em->getRepository(User::class)->find($id);
+        $form = $this->createForm(UpdateUserTypeForm::class, $user);
+        $form->handleRequest($request);
 
-    ): Response
-    {
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Gérer le mot de passe s’il est fourni
+            $plainPassword = $form->get('plainPassword')->getData();
+            if ($plainPassword) {
+                $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                $user->setPassword($hashedPassword);
+            }
 
-        return $this->redirectToRoute('app_users_admin'); //
+            // Vérifie si la spécialité est requise pour le rôle Médecin
+            if ($user->getRole() === 'ROLE_MEDECIN' && empty($user->getSpecialty())) {
+                $form->get('specialty')->addError(new FormError('La spécialité est requise pour les médecins.'));
+            } else {
+                $user->setUpdatedAt(new \DateTimeImmutable());
+                $em->flush();
+
+                $this->addFlash('success', 'Utilisateur modifié avec succès.');
+                return $this->redirectToRoute('app_users_admin');
+            }
+        }
+
+        return $this->render('admin/edit_user.html.twig', [
+            'form' => $form->createView(),
+            'user' => $user,
+        ]);
     }
+
     #[Route('/admin/users/delete{id}', name: 'app_users_delete_admin')]
     public function deleteUser(
         EntityManagerInterface $entityManager,
