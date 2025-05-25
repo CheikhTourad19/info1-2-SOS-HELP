@@ -39,6 +39,12 @@
                             <a href="{{ path('app_message_patient') }}" class="{{ app.request.attributes.get('_route') == 'app_message_patient' ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 Messages
                             </a>
+                            <a href="{{ path('app_search') }}" class="{{ app.request.attributes.get('_route') == 'app_search' ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Chercher
+                            </a>
+                            <a href="{{ path('app_pubs') }}" class="{{ app.request.attributes.get('_route') == 'app_pubs' ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                mes posts
+                            </a>
                             <a href="{{ path('app_chatbot_patient') }}" class="{{ app.request.attributes.get('_route') == 'app_chatbot_patient' ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 ChatBot
                             </a>

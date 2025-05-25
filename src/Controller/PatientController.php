@@ -59,13 +59,13 @@ final class PatientController extends AbstractController
 
             // Les autres champs sont automatiquement définis par le gestionnaire de formulaires
             // Il n'est pas nécessaire de les définir manuellement comme vous le faisiez
-        
+
             $entityManager->persist($user);
             $entityManager->flush();
 
             $this->addFlash('success', 'Votre profil a été mis à jour avec succès !');
 
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('app_home_patient');
         }
 
         return $this->render('patient/profile.html.twig', [
@@ -269,109 +269,151 @@ final class PatientController extends AbstractController
 
     #[Route('/patient/chatbot', name: 'app_chatbot_patient')]
     public function chatbot(): Response
-        {
-            return $this->render('patient/chatbot.html.twig' );
-        }
+    {
+        return $this->render('patient/chatbot.html.twig');
+    }
     #[Route('/patient/messages', name: 'app_message_patient')]
     public function messages(MessageRepository $messageRepository, UserRepository $userRepository): Response
     {
         $user = $this->getUser();
-        
+
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
-        
+
         $conversations = $messageRepository->findLatestConversations($user);
-        
+
         // Récupérer tous les médecins comme contacts potentiels
         $availableDoctors = $userRepository->findAvailableContacts($user);
-        
+
         return $this->render('patient/messages.html.twig', [
             'conversations' => $conversations,
             'availableDoctors' => $availableDoctors
         ]);
     }
 
-// Ajouter une nouvelle route pour démarrer une conversation
-#[Route('/patient/start-conversation/{id}', name: 'app_start_conversation')]
-public function startConversation(User $user): Response
-{
-    // Rediriger vers la page de conversation avec l'utilisateur sélectionné
-    return $this->redirectToRoute('app_conversation_patient', ['id' => $user->getId()]);
-}
-
-// Ajoutons également une route pour afficher une conversation spécifique
-#[Route('/patient/messages/{id}', name: 'app_conversation_patient')]
-public function showConversation(
-    User $otherUser, 
-    MessageRepository $messageRepository, 
-    EntityManagerInterface $entityManager
-): Response
-{
-    $currentUser = $this->getUser();
-    
-    if (!$currentUser) {
-        return $this->redirectToRoute('app_login');
+    // Ajouter une nouvelle route pour démarrer une conversation
+    #[Route('/patient/start-conversation/{id}', name: 'app_start_conversation')]
+    public function startConversation(User $user): Response
+    {
+        // Rediriger vers la page de conversation avec l'utilisateur sélectionné
+        return $this->redirectToRoute('app_conversation_patient', ['id' => $user->getId()]);
     }
-    
-    // Récupération de tous les messages entre les deux utilisateurs
-    $messages = $messageRepository->createQueryBuilder('m')
-        ->where('(m.sender = :currentUser AND m.receiver = :otherUser) OR (m.sender = :otherUser AND m.receiver = :currentUser)')
-        ->setParameter('currentUser', $currentUser)
-        ->setParameter('otherUser', $otherUser)
-        ->orderBy('m.sentAt', 'ASC')
-        ->getQuery()
-        ->getResult();
-    
-    // Marquer les messages non lus comme lus
-    foreach ($messages as $message) {
-        if ($message->getReceiver() === $currentUser && !$message->isRead()) {
-            $message->setIsRead(true);
-            $entityManager->persist($message);
+
+    // Ajoutons également une route pour afficher une conversation spécifique
+    #[Route('/patient/messages/{id}', name: 'app_conversation_patient')]
+    public function showConversation(
+        User $otherUser,
+        MessageRepository $messageRepository,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            return $this->redirectToRoute('app_login');
         }
-    }
-    $entityManager->flush();
-    
-    return $this->render('patient/conversation.html.twig', [
-        'messages' => $messages,
-        'otherUser' => $otherUser
-    ]);
-}
-#[Route('/patient/send-message/{id}', name: 'app_send_message', methods: ['POST'])]
-public function sendMessage(
-    User $receiver, 
-    Request $request, 
-    EntityManagerInterface $entityManager,
-    MailerInterface $mailer
-): Response
-{
-    $currentUser = $this->getUser();
-    
-    if (!$currentUser) {
-        return $this->redirectToRoute('app_login');
-    }
-    
-    $content = $request->request->get('content');
-    
-    if (!empty($content)) {
-        $message = new Message();
-        $message->setSender($currentUser);
-        $message->setReceiver($receiver);
-        $message->setContent($content);
-        $message->setSentAt(new DateTime());
-        $message->setIsRead(false);
-        
-        $entityManager->persist($message);
-        $entityManager->flush();
-        $email = (new Email())
-            ->from('Forum-Medical')
-            ->to($receiver->getEmail())
-            ->subject('Test Email')
-            ->text('Vous avez Un nouveau message provenant de :'.$currentUser->getFirstName());
 
-        $mailer->send($email);
+        // Récupération de tous les messages entre les deux utilisateurs
+        $messages = $messageRepository->createQueryBuilder('m')
+            ->where('(m.sender = :currentUser AND m.receiver = :otherUser) OR (m.sender = :otherUser AND m.receiver = :currentUser)')
+            ->setParameter('currentUser', $currentUser)
+            ->setParameter('otherUser', $otherUser)
+            ->orderBy('m.sentAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        // Marquer les messages non lus comme lus
+        foreach ($messages as $message) {
+            if ($message->getReceiver() === $currentUser && !$message->isRead()) {
+                $message->setIsRead(true);
+                $entityManager->persist($message);
+            }
+        }
+        $entityManager->flush();
+
+        return $this->render('patient/conversation.html.twig', [
+            'messages' => $messages,
+            'otherUser' => $otherUser
+        ]);
     }
-    
-    return $this->redirectToRoute('app_conversation_patient', ['id' => $receiver->getId()]);
-}
+    #[Route('/patient/send-message/{id}', name: 'app_send_message', methods: ['POST'])]
+    public function sendMessage(
+        User $receiver,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $content = $request->request->get('content');
+
+        if (!empty($content)) {
+            $message = new Message();
+            $message->setSender($currentUser);
+            $message->setReceiver($receiver);
+            $message->setContent($content);
+            $message->setSentAt(new DateTime());
+            $message->setIsRead(false);
+
+            $entityManager->persist($message);
+            $entityManager->flush();
+            $email = (new Email())
+                ->from('Forum-Medical')
+                ->to($receiver->getEmail())
+                ->subject('Test Email')
+                ->text('Vous avez Un nouveau message provenant de :' . $currentUser->getFirstName());
+
+            $mailer->send($email);
+        }
+
+        return $this->redirectToRoute('app_conversation_patient', ['id' => $receiver->getId()]);
+    }
+    #[Route('/patient/profil/{id}', name: 'app_bio')]
+    public function bio(User $user, PostRepository $postRepository): Response
+    {
+        $posts = $postRepository->findBy(['author' => $user]);
+
+        return $this->render('patient/bio.html.twig', [
+            'posts' => $posts,
+            'user' => $user,
+        ]);
+    }
+    #[Route('/patient/search', name: 'app_search')]
+    public function search(UserRepository $userRepository): Response
+    {
+        $users = $userRepository->findAll();
+
+        return $this->render('patient/search.html.twig', [
+            'users' => $users,
+        ]);
+    }
+    #[Route('/patient/pubs', name: 'app_pubs', methods: ['GET'])]
+    public function pubs(PostRepository $postRepository): Response
+    {
+        $posts = $postRepository->findBy(['author' => $this->getUser()]);
+
+        return $this->render('patient/pubs.html.twig', [
+            'posts' => $posts,
+        ]);
+    }
+
+    #[Route('/patient/pubs/delete', name: 'app_pubs_delete', methods: ['POST'])]
+    public function deletepubs(EntityManagerInterface $entityManager, Request $request): Response
+    {
+        $id = $request->request->get('id');
+        $post = $entityManager->getRepository(Post::class)->find($id);
+
+        if ($post && $post->getAuthor() === $this->getUser()) {
+            $entityManager->remove($post);
+            $entityManager->flush();
+            $this->addFlash('success', 'Publication supprimée avec succès.');
+        }
+
+        return $this->redirectToRoute('app_pubs');
+    }
+
 }

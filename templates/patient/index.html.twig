@@ -7,6 +7,7 @@
                 <!-- Post Header -->
                 <div class="p-4 flex items-center justify-between">
                     <div class="flex items-center space-x-3">
+                        <a href="{{ path('app_bio', {'id': post.author.id}) }}">
                         <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center text-blue-600 font-bold shadow-inner">
                             {{ post.author.firstname|first|upper }}{{ post.author.lastname|first|upper }}
                         </div>
@@ -14,6 +15,7 @@
                             <h3 class="font-semibold text-gray-900 truncate">{{ post.author.firstname }} {{ post.author.lastname }}</h3>
                             <p class="text-xs text-gray-500">{{ post.createdAt|date('M d, Y') }} · {{ post.createdAt|date('H:i') }}</p>
                         </div>
+                        </a>
                     </div>
                     <button class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
