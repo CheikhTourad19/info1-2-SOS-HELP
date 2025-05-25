@@ -164,7 +164,7 @@ final class MedecinController extends AbstractController
         ]);
     }
 
-    #[Route('medecin/post/{id}', name: 'app_post_show')]
+    #[Route('medecin/post/{id}', name: 'app_post_show_medecin')]
     public function show(
         Post $post,
         Request $request,
@@ -197,7 +197,7 @@ final class MedecinController extends AbstractController
 
             $mailer->send($email);
             // Rediriger pour éviter la resoumission du formulaire
-            return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+            return $this->redirectToRoute('app_post_show_medecin', ['id' => $post->getId()]);
         }
 
         // Créer un formulaire de réponse pour chaque commentaire
@@ -205,7 +205,7 @@ final class MedecinController extends AbstractController
         foreach ($post->getComments() as $existingComment) {
             $reply = new Reply();
             $replyForm = $this->createForm(ReplyTypeForm::class, $reply, [
-                'action' => $this->generateUrl('app_reply_add', [
+                'action' => $this->generateUrl('app_reply_add_medecin', [
                     'commentId' => $existingComment->getId(),
                 ]),
             ]);
@@ -219,7 +219,7 @@ final class MedecinController extends AbstractController
         ]);
     }
 
-    #[Route('medecin/reply/add/{commentId}', name: 'app_reply_add', methods: ['POST'])]
+    #[Route('medecin/reply/add/{commentId}', name: 'app_reply_add_medecin', methods: ['POST'])]
     public function addReply(
         int $commentId,
         Request $request,
@@ -257,14 +257,14 @@ final class MedecinController extends AbstractController
 
             $mailer->send($email);
             // Rediriger vers le post avec un fragment pour le commentaire
-            return $this->redirectToRoute('app_post_show', [
+            return $this->redirectToRoute('app_post_show_medecin', [
                 'id' => $comment->getPost()->getId(),
                 '_fragment' => 'comment-' . $comment->getId(),
             ]);
         }
 
         // En cas d'erreur, rediriger vers le post
-        return $this->redirectToRoute('app_post_show', [
+        return $this->redirectToRoute('app_post_show_medecin', [
             'id' => $comment->getPost()->getId(),
         ]);
     }
@@ -295,7 +295,7 @@ final class MedecinController extends AbstractController
     }
 
     // Ajouter une nouvelle route pour démarrer une conversation
-    #[Route('/medecin/start-conversation/{id}', name: 'app_start_conversation')]
+    #[Route('/medecin/start-conversation/{id}', name: 'app_start_conversation_medecin')]
     public function startConversation(User $user): Response
     {
         // Rediriger vers la page de conversation avec l'utilisateur sélectionné
@@ -338,7 +338,7 @@ final class MedecinController extends AbstractController
             'otherUser' => $otherUser
         ]);
     }
-    #[Route('/medecin/send-message/{id}', name: 'app_send_message', methods: ['POST'])]
+    #[Route('/medecin/send-message/{id}', name: 'app_send_message_medecin', methods: ['POST'])]
     public function sendMessage(
         User $receiver,
         Request $request,
@@ -374,7 +374,7 @@ final class MedecinController extends AbstractController
 
         return $this->redirectToRoute('app_conversation_medecin', ['id' => $receiver->getId()]);
     }
-    #[Route('/medecin/profil/{id}', name: 'app_bio')]
+    #[Route('/medecin/profil/{id}', name: 'app_bio_medecin')]
     public function bio(User $user, PostRepository $postRepository): Response
     {
         $posts = $postRepository->findBy(['author' => $user]);
@@ -403,7 +403,7 @@ final class MedecinController extends AbstractController
         ]);
     }
 
-    #[Route('/medecin/pubs/delete', name: 'app_pubs_delete', methods: ['POST'])]
+    #[Route('/medecin/pubs/delete', name: 'app_pubs_delete_medecin', methods: ['POST'])]
     public function deletepubs(EntityManagerInterface $entityManager, Request $request): Response
     {
         $id = $request->request->get('id');
@@ -415,7 +415,7 @@ final class MedecinController extends AbstractController
             $this->addFlash('success', 'Publication supprimée avec succès.');
         }
 
-        return $this->redirectToRoute('app_pubs');
+        return $this->redirectToRoute('app_pubs_medecin');
     }
     #[Route('/medecin/contact', name: 'app_contact_medecin', methods: ['GET', 'POST'])]
     public function contact(Request $request, MailerInterface $mailer): Response

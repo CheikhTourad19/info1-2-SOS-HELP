@@ -27,4 +27,4 @@ security:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/medecin, roles: ROLE_MEDECIN }
-        - { path: ^/patient, roles: ROLE_PATIENT }
+        - { path: ^/patient, roles: ROLE_PATIENT  }

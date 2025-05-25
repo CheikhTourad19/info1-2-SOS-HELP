@@ -26,7 +26,7 @@
                 <div class="user-card bg-white rounded-lg shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow duration-200"
                      data-name="{{ user.firstName|lower }} {{ user.lastName|lower }}"
                      data-specialty="{{ user.specialty|default('')|lower }}">
-                    <a href="{{ path('app_bio', {'id': user.id}) }}" class="block">
+                    <a href="{{ path('app_bio_medecin', {'id': user.id}) }}" class="block">
                         <div class="flex items-center space-x-4">
                             <div class="flex-shrink-0">
                                 <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
