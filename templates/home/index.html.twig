@@ -4,19 +4,19 @@
 
 {% block body %}
     <div class="bg-white min-h-screen">
-        <!-- Hero Section -->
+        <!-- Section d'accueil -->
         <section class="bg-violet-600 text-white py-16">
             <div class="container mx-auto px-4 text-center">
                 <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">
                     Bienvenue sur <span class="text-yellow-300">MedForum</span>
                 </h1>
                 <p class="text-lg md:text-xl max-w-2xl mx-auto">
-                    Une plateforme connectant les patients, médecins et administrateurs pour améliorer la qualité des soins.
+                    Une plateforme dédiée à connecter patients, médecins et administrateurs pour améliorer la qualité des soins.
                 </p>
             </div>
         </section>
 
-        <!-- Features -->
+        <!-- Fonctionnalités -->
         <section class="py-16 px-4 bg-gray-50">
             <div class="max-w-6xl mx-auto">
                 <h2 class="text-3xl font-bold text-center text-violet-700 mb-12">Fonctionnalités principales</h2>
@@ -25,8 +25,10 @@
                         <div class="text-violet-600 text-5xl mb-4">
                             🩺
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Accès médecins</h3>
-                        <p class="text-gray-600">Suivi des patients, diagnostics rapides et gestion des rendez-vous.</p>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Espace médecin</h3>
+                        <p class="text-gray-600">
+                            Un forum pour publier et partager du contenu médical, favoriser les interactions et les discussions entre professionnels de santé.
+                        </p>
                     </div>
 
                     <div class="bg-white shadow-lg rounded-lg p-6 text-center hover:shadow-xl transition">
@@ -34,25 +36,31 @@
                             👤
                         </div>
                         <h3 class="text-xl font-semibold text-gray-800 mb-2">Espace patient</h3>
-                        <p class="text-gray-600">Accédez à vos dossiers, posez vos questions et suivez votre traitement.</p>
+                        <p class="text-gray-600">
+                            Un espace pour poser des questions médicales aux spécialistes et échanger avec d'autres utilisateurs.
+                        </p>
                     </div>
 
                     <div class="bg-white shadow-lg rounded-lg p-6 text-center hover:shadow-xl transition">
                         <div class="text-violet-600 text-5xl mb-4">
                             ⚙️
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Interface admin</h3>
-                        <p class="text-gray-600">Gestion globale de la plateforme et supervision des utilisateurs.</p>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Interface administrateur</h3>
+                        <p class="text-gray-600">
+                            Gestion globale de la plateforme, modération du contenu et supervision des utilisateurs.
+                        </p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CTA -->
+        <!-- Appel à l'action -->
         <section class="bg-violet-100 py-12">
             <div class="max-w-3xl mx-auto text-center">
                 <h2 class="text-2xl font-bold text-violet-700 mb-4">Commencez dès maintenant !</h2>
-                <p class="text-gray-700 mb-6">Connectez-vous ou créez un compte pour profiter de toutes les fonctionnalités de MedForum.</p>
+                <p class="text-gray-700 mb-6">
+                    Connectez-vous ou créez un compte pour profiter pleinement de toutes les fonctionnalités de MedForum.
+                </p>
                 <div class="flex justify-center space-x-4">
                     <a href="{{ path('app_login') }}" class="px-6 py-3 bg-violet-600 text-white rounded hover:bg-violet-700 transition">Connexion</a>
                     <a href="{{ path('app_register') }}" class="px-6 py-3 border border-violet-600 text-violet-600 rounded hover:bg-violet-600 hover:text-white transition">Inscription</a>
@@ -60,7 +68,7 @@
             </div>
         </section>
 
-        <!-- Footer -->
+        <!-- Pied de page -->
         <footer class="bg-gray-800 text-white text-center py-6 mt-12">
             <p>&copy; {{ "now"|date("Y") }} MedForum. Tous droits réservés.</p>
         </footer>

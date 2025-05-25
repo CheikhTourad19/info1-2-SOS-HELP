@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Controller;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use App\Entity\Comment;
 use App\Entity\Message;
@@ -426,8 +428,10 @@ final class PatientController extends AbstractController
             $message = $request->request->get('message');
 
             $emailMessage = (new Email())
-                ->from($email)
-                ->to('support@emedical.tn') //adresse admin
+                ->from(new Address('Forum-Medical@med.com', 'Forum Medical'))
+                ->to(
+                    new Address('bentaherdaly123@gmail.com', 'Admin 4')
+                ) //adresse admin
                 ->subject("Demande technique de $name ($role) - $issueType")
                 ->text(
                     "Nom : $name\n" .
@@ -435,12 +439,27 @@ final class PatientController extends AbstractController
                     "Email : $email\n" .
                     "Type de problème : $issueType\n\n" .
                     "Message :\n$message"
-                );
+                )
+                ->html("
+        <div style='font-family: Arial, sans-serif;'>
+            <h2 style='color: #4f46e5;'>Nouvelle demande technique</h2>
+            <p><strong>Nom:</strong> $name</p>
+            <p><strong>Rôle:</strong> $role</p>
+            <p><strong>Email:</strong> <a href='mailto:$email'>$email</a></p>
+            <p><strong>Type de problème:</strong> $issueType</p>
+            <p><strong>Message:</strong></p>
+            <blockquote style='background-color: #f9f9f9; padding: 10px; border-left: 4px solid #4f46e5;'>
+                $message
+            </blockquote>
+            <hr style='margin-top: 30px;'>
+            <p style='font-size: 12px; color: #888;'>Forum Medical – Formulaire de contact patient</p>
+        </div>
+    ");
 
             try {
                 $mailer->send($emailMessage);
                 $this->addFlash('success', 'Votre message a bien été envoyé.');
-            } catch (\Exception $e) {
+            } catch (TransportExceptionInterface $e) {
                 $this->addFlash('danger', 'Une erreur est survenue lors de l\'envoi du message.');
             }
 

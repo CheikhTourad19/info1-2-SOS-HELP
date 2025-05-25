@@ -11,6 +11,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -95,9 +98,9 @@ final class AdminController extends AbstractController
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
         UserPasswordHasherInterface $passwordHasher,
+        MailerInterface $mailer,
         $id
-                                ): Response
-    {
+    ): Response {
         $user = $userRepository->find($id);
 
         if (!$user) {
@@ -111,7 +114,27 @@ final class AdminController extends AbstractController
 
         $entityManager->flush();
 
-        $this->addFlash('success', "Mot de passe réinitialisé pour l'utilisateur {$user->getEmail()}.");
+        // ✅ Send email to the user
+        $email = (new Email())
+            ->from(new Address('Forum-Medical@med.com', 'Forum Medical'))
+            ->to($user->getEmail())
+            ->subject('Réinitialisation de votre mot de passe')
+            ->html("
+            <p>Bonjour {$user->getFirstname()},</p>
+            <p>Votre mot de passe a été réinitialisé par l'administrateur.</p>
+            <p>Votre nouveau mot de passe est : <strong>$newPassword</strong></p>
+            <p>Merci de vous connecter et de le modifier dès que possible.</p>
+            <br>
+            <p style='font-size: 12px; color: #888;'>Forum Medical</p>
+        ");
+
+        try {
+            $mailer->send($email);
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Erreur lors de l’envoi de l’email : ' . $e->getMessage());
+        }
+
+        $this->addFlash('success', "Mot de passe réinitialisé pour l'utilisateur {$user->getEmail()} et email envoyé.");
         return $this->redirectToRoute('app_users_admin');
     }
     #[Route('/admin/users/add', name: 'app_users_add_admin')]
@@ -128,9 +151,12 @@ final class AdminController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Hash le mot de passe
-            $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
-            $user->setPassword($hashedPassword);
 
+            $user->setPassword(
+                $passwordHasher->hashPassword(
+                    $user,
+                    $form->get('password')->getData()
+                ));
 
             $user->setRole('ROLE_MEDECIN');
 
