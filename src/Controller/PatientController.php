@@ -188,7 +188,7 @@ final class PatientController extends AbstractController
             $entityManager->persist($comment);
             $entityManager->flush();
             $email = (new Email())
-                ->from('Forum-Medical')
+                ->from('Forum-Medical@med.com')
                 ->to($post->getAuthor()->getEmail())
                 ->subject('Nouveau commentaire')
                 ->text('Vous avez Une nouveau commentaire a votre post');
@@ -248,7 +248,7 @@ final class PatientController extends AbstractController
             $entityManager->persist($reply);
             $entityManager->flush();
             $email = (new Email())
-                ->from('Forum-Medical')
+                ->from('Forum-Medical@med.com')
                 ->to($comment->getAuthor()->getEmail())
                 ->subject('Nouvelle reponse')
                 ->text('Vous avez Une nouvelle reponse a votre commentaie:');
@@ -362,7 +362,7 @@ final class PatientController extends AbstractController
             $entityManager->persist($message);
             $entityManager->flush();
             $email = (new Email())
-                ->from('Forum-Medical')
+                ->from('Forum-Medical@med.com')
                 ->to($receiver->getEmail())
                 ->subject('Test Email')
                 ->text('Vous avez Un nouveau message provenant de :' . $currentUser->getFirstName());
