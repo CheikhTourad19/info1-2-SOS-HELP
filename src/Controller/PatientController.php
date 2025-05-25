@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Controller;
-
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use App\Entity\Comment;
 use App\Entity\Message;
 use App\Entity\Post;
@@ -165,7 +166,8 @@ final class PatientController extends AbstractController
     public function show(
         Post $post,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer,
     ): Response {
         // Vérifier si l'utilisateur est connecté
         $user = $this->getUser();
@@ -185,7 +187,13 @@ final class PatientController extends AbstractController
 
             $entityManager->persist($comment);
             $entityManager->flush();
+            $email = (new Email())
+                ->from('Forum-Medical')
+                ->to($post->getAuthor()->getEmail())
+                ->subject('Nouveau commentaire')
+                ->text('Vous avez Une nouveau commentaire a votre post');
 
+            $mailer->send($email);
             // Rediriger pour éviter la resoumission du formulaire
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
@@ -213,7 +221,8 @@ final class PatientController extends AbstractController
     public function addReply(
         int $commentId,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer,
     ): Response {
         // Vérifier si l'utilisateur est connecté
         $user = $this->getUser();
@@ -238,7 +247,13 @@ final class PatientController extends AbstractController
 
             $entityManager->persist($reply);
             $entityManager->flush();
+            $email = (new Email())
+                ->from('Forum-Medical')
+                ->to($comment->getAuthor()->getEmail())
+                ->subject('Nouvelle reponse')
+                ->text('Vous avez Une nouvelle reponse a votre commentaie:');
 
+            $mailer->send($email);
             // Rediriger vers le post avec un fragment pour le commentaire
             return $this->redirectToRoute('app_post_show', [
                 'id' => $comment->getPost()->getId(),
@@ -326,7 +341,8 @@ public function showConversation(
 public function sendMessage(
     User $receiver, 
     Request $request, 
-    EntityManagerInterface $entityManager
+    EntityManagerInterface $entityManager,
+    MailerInterface $mailer
 ): Response
 {
     $currentUser = $this->getUser();
@@ -347,6 +363,13 @@ public function sendMessage(
         
         $entityManager->persist($message);
         $entityManager->flush();
+        $email = (new Email())
+            ->from('Forum-Medical')
+            ->to($receiver->getEmail())
+            ->subject('Test Email')
+            ->text('Vous avez Un nouveau message provenant de :'.$currentUser->getFirstName());
+
+        $mailer->send($email);
     }
     
     return $this->redirectToRoute('app_conversation_patient', ['id' => $receiver->getId()]);
