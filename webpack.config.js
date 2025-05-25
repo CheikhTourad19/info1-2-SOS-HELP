@@ -59,6 +59,10 @@ Encore
         config.useBuiltIns = 'usage';
         config.corejs = '3.38';
     })
+    .configureWatchOptions(watchOptions => {
+        watchOptions.ignored = /node_modules|var\/cache|var\/log/;
+    })
+
 
     // enables Sass/SCSS support
     //.enableSassLoader()

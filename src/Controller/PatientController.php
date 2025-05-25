@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\Message;
 use App\Entity\Post;
 use App\Entity\PostDocument;
 use App\Entity\PostImage;
@@ -13,6 +14,9 @@ use App\Form\PostTypeForm;
 use App\Form\RegistrationFormTypeForm;
 use App\Form\ReplyTypeForm;
 use App\Repository\PostRepository;
+use App\Repository\MessageRepository;
+
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use DateTime;
 
 final class PatientController extends AbstractController
 {
@@ -248,11 +253,102 @@ final class PatientController extends AbstractController
     }
 
     #[Route('/patient/chatbot', name: 'app_chatbot_patient')]
-public function chatbot(): Response
+    public function chatbot(): Response
+        {
+            return $this->render('patient/chatbot.html.twig' );
+        }
+    #[Route('/patient/messages', name: 'app_message_patient')]
+    public function messages(MessageRepository $messageRepository, UserRepository $userRepository): Response
     {
-        return $this->render('patient/chatbot.html.twig' );
+        $user = $this->getUser();
+        
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+        
+        $conversations = $messageRepository->findLatestConversations($user);
+        
+        // Récupérer tous les médecins comme contacts potentiels
+        $availableDoctors = $userRepository->findAvailableContacts($user);
+        
+        return $this->render('patient/messages.html.twig', [
+            'conversations' => $conversations,
+            'availableDoctors' => $availableDoctors
+        ]);
     }
 
+// Ajouter une nouvelle route pour démarrer une conversation
+#[Route('/patient/start-conversation/{id}', name: 'app_start_conversation')]
+public function startConversation(User $user): Response
+{
+    // Rediriger vers la page de conversation avec l'utilisateur sélectionné
+    return $this->redirectToRoute('app_conversation_patient', ['id' => $user->getId()]);
+}
 
-
+// Ajoutons également une route pour afficher une conversation spécifique
+#[Route('/patient/messages/{id}', name: 'app_conversation_patient')]
+public function showConversation(
+    User $otherUser, 
+    MessageRepository $messageRepository, 
+    EntityManagerInterface $entityManager
+): Response
+{
+    $currentUser = $this->getUser();
+    
+    if (!$currentUser) {
+        return $this->redirectToRoute('app_login');
+    }
+    
+    // Récupération de tous les messages entre les deux utilisateurs
+    $messages = $messageRepository->createQueryBuilder('m')
+        ->where('(m.sender = :currentUser AND m.receiver = :otherUser) OR (m.sender = :otherUser AND m.receiver = :currentUser)')
+        ->setParameter('currentUser', $currentUser)
+        ->setParameter('otherUser', $otherUser)
+        ->orderBy('m.sentAt', 'ASC')
+        ->getQuery()
+        ->getResult();
+    
+    // Marquer les messages non lus comme lus
+    foreach ($messages as $message) {
+        if ($message->getReceiver() === $currentUser && !$message->isRead()) {
+            $message->setIsRead(true);
+            $entityManager->persist($message);
+        }
+    }
+    $entityManager->flush();
+    
+    return $this->render('patient/conversation.html.twig', [
+        'messages' => $messages,
+        'otherUser' => $otherUser
+    ]);
+}
+#[Route('/patient/send-message/{id}', name: 'app_send_message', methods: ['POST'])]
+public function sendMessage(
+    User $receiver, 
+    Request $request, 
+    EntityManagerInterface $entityManager
+): Response
+{
+    $currentUser = $this->getUser();
+    
+    if (!$currentUser) {
+        return $this->redirectToRoute('app_login');
+    }
+    
+    $content = $request->request->get('content');
+    
+    if (!empty($content)) {
+        $message = new Message();
+        $message->setSender($currentUser);
+        $message->setReceiver($receiver);
+        $message->setContent($content);
+        $message->setSentAt(new DateTime());
+        $message->setIsRead(false);
+        
+        $entityManager->persist($message);
+        $entityManager->flush();
+    }
+    
+    return $this->redirectToRoute('app_conversation_patient', ['id' => $receiver->getId()]);
+}
 }
